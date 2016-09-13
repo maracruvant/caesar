@@ -47,7 +47,7 @@ user_input = """
     <div>
         <form action="/encrypt" method="POST">
             <label for="message">Please type message to encrypt</label>
-            <input type="text" name="message"/>
+            <textarea type="text" name="message">{text}</textarea>
             <br>
             <label for="quantity">Please type rotation amount</label>
             <input type="number" name="quantity"/>
@@ -58,7 +58,7 @@ class MainHandler(webapp2.RequestHandler):
 
     def get(self):
         user_input
-        self.response.write(page_head + user_input)
+        self.response.write(page_head + user_input.format(text=""))
 
 class EncryptHandler(webapp2.RequestHandler):
     def post(self):
@@ -73,10 +73,11 @@ class EncryptHandler(webapp2.RequestHandler):
         #error message if no text is entered
         error = "<p>You need to write some text!</p>"
         if text_to_translate == "":
-            self.response.write(page_head + error + user_input)
+            self.response.write(page_head + user_input.format(text=error))
 
-        translated_text = encrypt(text_to_translate, number_shift)
-        self.response.write(translated_text)
+        translated_text = cgi.escape(encrypt(text_to_translate, number_shift))
+        self.response.write(page_head + user_input.format(text=translated_text))
+
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
